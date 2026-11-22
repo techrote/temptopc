@@ -18,5 +18,7 @@ for service in xvfb xfce vnc novnc; do
     printf '%-6s stopped\n' "$service"
   fi
 done
-echo 'Open private forwarded port 6080 -> /vnc.html; VNC TCP port 5901 never forwarded.'
+echo '--- Active RFB + noVNC health ---'
+python3 "$(dirname "$0")/check-desktop.py" || true
+echo 'Open private forwarded port 6080 -> /vnc.html; raw VNC port 5901 never forwarded.'
 echo 'To show your VNC password: bash scripts/desktop-status.sh --show-password'

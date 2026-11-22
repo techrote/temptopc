@@ -38,6 +38,16 @@ class TempToPCSourceContract(unittest.TestCase):
         self.assertNotIn("0.0.0.0:6080", script)
         self.assertIn("ssh-keygen -A", script)
         self.assertIn("vnc-password", script)
+        self.assertIn("spawn-detached.py", script)
+        self.assertIn("check-desktop.py", script)
+        self.assertNotIn("nohup ", script)
+        supervisor = (ROOT / "scripts/spawn-detached.py").read_text()
+        self.assertIn("start_new_session=True", supervisor)
+        health = (ROOT / "scripts/check-desktop.py").read_text()
+        self.assertIn("127.0.0.1", health)
+        self.assertIn("RFB ", health)
+        self.assertIn("5901", health)
+        self.assertIn("6080", health)
 
     def test_reusable_manual_windows(self):
         file = workflow(".github/workflows/windows-desktop.yml")

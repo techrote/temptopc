@@ -22,7 +22,22 @@ creating the files does not automatically instantiate or test either machine.
    This 8-character password is a legacy VNC secondary challenge. GitHub's
    private-port authentication is the primary barrier. **Never** mark port
    6080 as Public or organization-visible, or publish the VNC password.
-4. Inspect the graphical desktop. Use its **Launch Windows Acceptance**
+4. The startup command verifies **both** the noVNC webpage and the VNC RFB
+   handshake. If Connect does nothing, first check service status and logs:
+
+       bash scripts/desktop-status.sh
+       tail -n 30 ~/.cache/temptopc/vnc.log
+       tail -n 30 ~/.cache/temptopc/xfce.log
+
+   The first Codespace build used a post-start background process that could
+   receive SIGHUP when the launcher exited. The current detached supervisor
+   starts those processes in separate POSIX sessions. Fetch the repair with
+   `git pull --ff-only` and run `bash scripts/start-desktop.sh` to apply it.
+   You do **not** need to add port 6080 again if its forwarded URL already loads.
+   If you copied or posted a VNC password, rotate it with
+   `bash scripts/start-desktop.sh --rotate-password`, then retrieve the new
+   password privately; never paste the replacement into a chat.
+5. Inspect the graphical desktop. Use its **Launch Windows Acceptance**
    icon or the same terminal to manage project-associated workflows.
    To restart a failed desktop service, run:
 
