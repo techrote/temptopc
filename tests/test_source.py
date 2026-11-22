@@ -68,8 +68,8 @@ class TempToPCSourceContract(unittest.TestCase):
 
     def test_dispatch_is_manually_gated(self):
         bash = (ROOT / "scripts/windows.sh").read_text()
-        self.assertIn("gh workflow run", bash)
-        self.assertIn("gh run cancel", bash)
+        self.assertIn("gh_project workflow run", bash)
+        self.assertIn("gh_project run cancel", bash)
         self.assertNotIn("--ref main", bash)
         self.assertIn("windows-desktop-selftest.yml", bash)
 
