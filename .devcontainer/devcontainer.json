@@ -1,0 +1,26 @@
+{
+  "name": "TempToPC - private Linux desktop and acceptance control",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "hostRequirements": {"cpus": 4, "memory": "8gb", "storage": "32gb"},
+  "containerEnv": {
+    "DISPLAY": ":9",
+    "LIBGL_ALWAYS_SOFTWARE": "1",
+    "XDG_SESSION_TYPE": "x11"
+  },
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "TempToPC private Linux desktop (noVNC)",
+      "onAutoForward": "silent",
+      "visibility": "private",
+      "protocol": "http"
+    }
+  },
+  "postCreateCommand": "bash scripts/doctor.sh",
+  "postStartCommand": "bash scripts/start-desktop.sh",
+  "shutdownAction": "stopContainer"
+}

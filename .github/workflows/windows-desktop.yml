@@ -1,0 +1,183 @@
+name: TempToPC Windows project acceptance (reusable)
+# Call only from a repository whose software is being tested.
+on:
+  workflow_call:
+    inputs:
+      minutes:
+        type: number
+        required: false
+        default: 60
+      candidate_run_id:
+        type: string
+        required: false
+        default: ""
+      candidate_artifact:
+        type: string
+        required: false
+        default: ""
+      candidate_sha:
+        type: string
+        required: false
+        default: ""
+    secrets:
+      TAILSCALE_AUTHKEY:
+        required: true
+      TEMPTOPC_RDP_PASSWORD:
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: temptopc-rdp-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  windows-acceptance:
+    if: github.event_name == 'workflow_dispatch' && inputs.minutes >= 15 && inputs.minutes <= 300
+    runs-on: windows-2022
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Verify optional existing same-project build
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.candidate_run_id }}
+          ARTIFACT: ${{ inputs.candidate_artifact }}
+          SHA: ${{ inputs.candidate_sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $values = @($env:RUN_ID, $env:ARTIFACT, $env:SHA)
+          $provided = @($values | Where-Object { -not [string]::IsNullOrEmpty($_) }).Count
+          if ($provided -eq 0) { Write-Host 'No build artifact selected; checked-out project available.'; exit 0 }
+          if ($provided -ne 3) { throw 'Supply candidate_run_id, candidate_artifact and candidate_sha together' }
+          if ($env:RUN_ID -notmatch '^[1-9][0-9]{0,14}$') { throw 'Invalid Actions run ID' }
+          if ($env:ARTIFACT -notmatch '^[A-Za-z0-9_.-]{1,160}$') { throw 'Invalid artifact name' }
+          if ($env:SHA -notmatch '^[0-9a-fA-F]{40}$') { throw 'Invalid full source SHA' }
+          $run = (& gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:RUN_ID" | ConvertFrom-Json)
+          if ($LASTEXITCODE -ne 0 -or $null -eq $run) { throw 'Cannot verify producer run' }
+          if ($run.repository.full_name -ne $env:GITHUB_REPOSITORY) { throw 'Cross-project artifact refused' }
+          if ($run.head_repository.full_name -ne $env:GITHUB_REPOSITORY) { throw 'Fork-produced artifact refused' }
+          if ($run.status -ne 'completed' -or $run.conclusion -ne 'success') { throw 'Build not successful' }
+          if ($run.head_sha -ne $env:SHA.ToLowerInvariant()) { throw 'Source commit mismatch' }
+          Write-Host "Verified source run $env:RUN_ID at $($run.head_sha)"
+
+      - name: Retrieve verified optional build artifact
+        if: inputs.candidate_artifact != ''
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: ${{ inputs.candidate_artifact }}
+          run-id: ${{ inputs.candidate_run_id }}
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/temptopc-artifact
+
+      - name: Stage checkout, artifact and acceptance feedback (no auto-execution)
+        shell: pwsh
+        env:
+          PRODUCER_SHA: ${{ inputs.candidate_sha }}
+          PRODUCER_RUN: ${{ inputs.candidate_run_id }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = 'C:\TempToPC'
+          $artifacts = Join-Path $root 'Artifacts'
+          $feedback = Join-Path $root 'Feedback'
+          New-Item -ItemType Directory -Force -Path $artifacts,$feedback | Out-Null
+          $incoming = Join-Path $env:RUNNER_TEMP 'temptopc-artifact'
+          if (Test-Path $incoming) {
+            Copy-Item -Path (Join-Path $incoming '*') -Destination $artifacts -Recurse -Force
+          }
+          @(
+            "Project: $env:GITHUB_REPOSITORY",
+            "Caller source: $env:GITHUB_SHA",
+            "Source checkout: $env:GITHUB_WORKSPACE",
+            "Candidate build run: $env:PRODUCER_RUN",
+            "Candidate source SHA: $env:PRODUCER_SHA",
+            'No candidate binary has been launched automatically.',
+            'Artifacts: C:\TempToPC\Artifacts',
+            'Evidence: C:\TempToPC\Feedback',
+            'Remote Windows Server graphics do not reproduce a local NVIDIA/Vulkan GPU.'
+          ) | Set-Content -Path (Join-Path $root 'START-HERE.txt') -Encoding UTF8
+          $desktop = 'C:\Users\Public\Desktop'
+          Copy-Item -LiteralPath (Join-Path $root 'START-HERE.txt') -Destination (Join-Path $desktop 'TempToPC acceptance info.txt')
+          $shell = New-Object -ComObject WScript.Shell
+          $shortcut = $shell.CreateShortcut((Join-Path $desktop 'Acceptance artifacts.lnk'))
+          $shortcut.TargetPath = 'explorer.exe'
+          $shortcut.Arguments = '"C:\TempToPC\Artifacts"'
+          $shortcut.Save()
+          & icacls $root /grant '*S-1-5-32-545:(OI)(CI)RX' /T | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Could not grant standard-user read access' }
+
+      - name: Verify private desktop credentials exist
+        shell: pwsh
+        env:
+          TS_KEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+          PASSWORD: ${{ secrets.TEMPTOPC_RDP_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:TS_KEY)) { throw 'Set TAILSCALE_AUTHKEY in the calling repository' }
+          if ([string]::IsNullOrEmpty($env:PASSWORD) -or $env:PASSWORD.Length -lt 20) { throw 'Set TEMPTOPC_RDP_PASSWORD to 20+ characters' }
+          Write-Host 'Secret presence and password length validated; no values printed'
+
+      - name: Connect ephemeral Tailscale private network
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Enable non-admin RDP reachable only from the tailnet
+        shell: pwsh
+        env:
+          PASSWORD: ${{ secrets.TEMPTOPC_RDP_PASSWORD }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $secure = ConvertTo-SecureString $env:PASSWORD -AsPlainText -Force
+          if (-not (Get-LocalUser -Name 'temptopc-test' -ErrorAction SilentlyContinue)) {
+            New-LocalUser -Name 'temptopc-test' -Password $secure -PasswordNeverExpires -Description 'Ephemeral acceptance tester' | Out-Null
+          }
+          Add-LocalGroupMember -Group 'Remote Desktop Users' -Member 'temptopc-test' -ErrorAction Stop
+          & icacls 'C:\TempToPC\Feedback' /grant 'temptopc-test:(OI)(CI)M' /T | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Feedback directory write grant failed' }
+          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0
+          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name UserAuthentication -Value 1
+          Get-NetFirewallRule -DisplayGroup 'Remote Desktop' -ErrorAction SilentlyContinue | Disable-NetFirewallRule
+          Set-NetFirewallProfile -Profile Domain,Private,Public -Enabled True
+          New-NetFirewallRule -DisplayName 'TempToPC restricted RDP' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3389 -RemoteAddress '100.64.0.0/10' -Profile Any | Out-Null
+          Start-Service -Name TermService -ErrorAction SilentlyContinue
+          & tailscale set --unattended=true
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to enable unattended Tailscale mode' }
+          $ip = ((& tailscale ip -4) | Select-Object -First 1).Trim()
+          if ($LASTEXITCODE -ne 0 -or $ip -notmatch '^100\.') { throw 'Missing private tailnet IP' }
+          Write-Host "Private RDP: $ip, Windows user: temptopc-test"
+          @(
+            '### TempToPC Windows acceptance',
+            "Caller project: **$env:GITHUB_REPOSITORY** @ **$env:GITHUB_SHA**",
+            "Connect via mstsc: **$ip**",
+            'Windows username: **temptopc-test**',
+            'Password: the secret **TEMPTOPC_RDP_PASSWORD** in the calling repository',
+            'Your computer must be connected to Tailscale and allowed by tailnet ACLs.',
+            'No public RDP/VNC port has been configured. Cancel this run to shut down.'
+          ) | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Bounded manual acceptance window
+        shell: pwsh
+        env:
+          MINUTES: ${{ inputs.minutes }}
+        run: |
+          $minutes = [int]$env:MINUTES
+          if ($minutes -lt 15 -or $minutes -gt 300) { throw 'Invalid duration' }
+          for ($minute = 1; $minute -le $minutes; $minute++) {
+            Start-Sleep -Seconds 60
+            if ($minute % 10 -eq 0 -or $minute -eq $minutes) { Write-Host "Acceptance minute $minute / $minutes" }
+          }
+
+      - name: Retain explicit human feedback only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: temptopc-feedback-${{ github.run_id }}-${{ github.run_attempt }}
+          path: C:/TempToPC/Feedback/
+          retention-days: 7
+          if-no-files-found: ignore

@@ -1,0 +1,22 @@
+name: TempToPC RDP infrastructure self-test
+# This checks the remote desktop component of THIS repository, not arbitrary apps.
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        type: choice
+        required: true
+        default: "30"
+        options: ["30", "60", "120", "240", "300"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-tempotopc:
+    if: github.repository == 'techrote/temptopc' && github.actor == 'techrote'
+    uses: ./.github/workflows/windows-desktop.yml
+    with:
+      minutes: ${{ fromJSON(inputs.minutes) }}
+    secrets:
+      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+      TEMPTOPC_RDP_PASSWORD: ${{ secrets.TEMPTOPC_RDP_PASSWORD }}

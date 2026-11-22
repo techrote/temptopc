@@ -1,0 +1,16 @@
+# Local credentials, runtime caches and acceptance artifacts
+.env
+.env.*
+!.env.example
+.local/
+.cache/
+build/
+dist/
+artifacts/
+captures/
+*.log
+*.pem
+*.key
+__pycache__/
+.pytest_cache/
+.DS_Store
