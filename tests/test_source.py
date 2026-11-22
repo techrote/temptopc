@@ -85,6 +85,14 @@ class TempToPCSourceContract(unittest.TestCase):
         self.assertIn("gh_project run cancel", bash)
         self.assertNotIn("--ref main", bash)
         self.assertIn("windows-desktop-selftest.yml", bash)
+        self.assertIn("preflight", bash)
+        self.assertIn("TAILSCALE_AUTHKEY", bash)
+        self.assertIn("TEMPTOPC_RDP_PASSWORD", bash)
+        self.assertIn("candidate_run_id", bash)
+        gui = (ROOT / "scripts/launch-windows-gui.sh").read_text()
+        self.assertIn("preflight", gui)
+        self.assertIn("zenity --question", gui)
+        self.assertIn("windows.sh start", gui)
 
 
 if __name__ == "__main__":

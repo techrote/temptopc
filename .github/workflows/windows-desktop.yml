@@ -148,6 +148,20 @@ jobs:
           Start-Service -Name TermService -ErrorAction SilentlyContinue
           & tailscale set --unattended=true
           if ($LASTEXITCODE -ne 0) { throw 'Failed to enable unattended Tailscale mode' }
+          $ts = (& tailscale status --json | ConvertFrom-Json)
+          if ($LASTEXITCODE -ne 0 -or $ts.BackendState -ne 'Running') { throw 'Tailscale daemon is not connected to the tailnet' }
+          $rdpReady = $false
+          for ($attempt=0; $attempt -lt 20; $attempt++) {
+            if (Get-NetTCPConnection -LocalPort 3389 -State Listen -ErrorAction SilentlyContinue) {
+              $rdpReady = $true
+              break
+            }
+            Start-Sleep -Seconds 1
+          }
+          if (-not $rdpReady) { throw 'RDP TCP/3389 is not listening on this Windows runner' }
+          $rule = Get-NetFirewallRule -DisplayName 'TempToPC restricted RDP' -ErrorAction Stop
+          $allowedSources = @($rule | Get-NetFirewallAddressFilter | Select-Object -ExpandProperty RemoteAddress)
+          if ('100.64.0.0/10' -notin $allowedSources) { throw 'RDP firewall rule has unexpected source scope' }
           $ip = ((& tailscale ip -4) | Select-Object -First 1).Trim()
           if ($LASTEXITCODE -ne 0 -or $ip -notmatch '^100\.') { throw 'Missing private tailnet IP' }
           Write-Host "Private RDP: $ip, Windows user: temptopc-test"

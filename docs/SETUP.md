@@ -189,3 +189,59 @@ Official references:
 - https://docs.github.com/en/rest/codespaces/codespaces
 - https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features
 - https://tailscale.com/docs/integrations/github/github-action
+
+## First Windows acceptance: practical operator checklist
+
+Before using the Linux graphical launcher, create one Tailscale tailnet
+(or use an existing one) and install its Windows client on the PC from
+which you will run mstsc. Current Tailscale GitHub Action v4 accepts
+a tagged, reusable, ephemeral auth key; avoid a non-expiring unrestricted
+key. In the Tailscale admin console:
+
+1. In Access controls, declare an owned tag such as `tag:temptopc-accept`,
+   and allow only the user's specific Tailscale identity/devices to reach
+   `tag:temptopc-accept:3389`. Keep this role minimal; do not permit
+   the ephemeral runner to reach arbitrary other tailnet devices.
+2. Under Settings → Keys, choose **Generate auth key**. Select **Reusable**,
+   **Ephemeral**, and `tag:temptopc-accept`, then **Generate key**.
+   If device approval is enabled, choose **Pre-approved**. Copy the
+   secret directly to GitHub's secret editor, never into chat or a PR.
+3. At `https://github.com/techrote/temptopc/settings/secrets/actions`,
+   click **New repository secret** and set:
+   `TAILSCALE_AUTHKEY` = the generated key, and
+   `TEMPTOPC_RDP_PASSWORD` = a distinct strong 20+ character password.
+   The Windows login name will be `temptopc-test`. Do not share the values.
+4. In the Codespace terminal, run `git pull --ff-only`, then
+   `bash scripts/test-windows-launcher.sh` to exercise mock CLI/GUI dispatch
+   with **no paid Windows runner**. Next run
+   `bash scripts/windows.sh preflight techrote/temptopc`.
+   Preflight checks the active workflow and, when allowed by GitHub's API,
+   the **presence of secret names** (never their values).
+5. Double-click **Launch Windows Acceptance** on XFCE, leave the default
+   repository `techrote/temptopc`, select **30 minutes**, read preflight,
+   and explicitly click **Launch Windows**. It dispatches one
+   TempToPC **infrastructure self-test**. A successful dispatch is not
+   an RDP success; consult that run's Actions job summary.
+6. On your own Windows PC, sign in to the same Tailscale network.
+   Run `mstsc`, enter the runner's private `100.x.y.z` address
+   from the Actions job summary, and sign in as `temptopc-test`
+   with the secret you configured. Check that the desktop displays
+   **TempToPC acceptance info.txt**, and verify `C:\TempToPC\Feedback`
+   is writable. Disconnect/reconnect once before ending the run.
+
+The Windows workflow now checks that Tailscale is connected and
+TCP/3389 is actually listening before reporting its private IP.
+If no Windows run is created, check launcher preflight/gh credentials;
+if a run is created but fails, inspect the failing Actions step.
+The Codespace's injected token may be too restricted for workflow
+dispatch; use `gh auth login --web` to authorize a user-level GitHub CLI
+identity in that trusted Codespace.
+
+### Functional test versus live acceptance
+
+`scripts/test-windows-launcher.sh` replaces `gh`, `zenity` and
+`xfce4-terminal` with local mocks. Passing it proves command validation,
+preflight, refusal paths, cancellation and the intended dispatch arguments.
+It **cannot** prove a real GitHub Actions run, Tailscale authentication,
+remote RDP logon, Windows GUI interaction, or GPU equivalence.
+Record those separately after the first live self-test.
