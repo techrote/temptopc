@@ -198,10 +198,21 @@ which you will run mstsc. Current Tailscale GitHub Action v4 accepts
 a tagged, reusable, ephemeral auth key; avoid a non-expiring unrestricted
 key. In the Tailscale admin console:
 
-1. In Access controls, declare an owned tag such as `tag:temptopc-accept`,
-   and allow only the user's specific Tailscale identity/devices to reach
-   `tag:temptopc-accept:3389`. Keep this role minimal; do not permit
-   the ephemeral runner to reach arbitrary other tailnet devices.
+1. In **Access controls**, declare an owned tag such as `tag:temptopc-accept`,
+   and allow only your specific Tailscale identity/devices to connect to
+   `tag:temptopc-accept` over TCP/3389. A policy fragment to **merge with
+   your existing policy** (replace the example email, do not overwrite your
+   other rules) is:
+
+       "tagOwners": {"tag:temptopc-accept": ["autogroup:admin"]},
+       "grants": [
+         {"src": ["you@example.com"], "dst": ["tag:temptopc-accept"], "ip": ["tcp:3389"]}
+       ]
+
+   Review existing broad legacy ACLs and grants too: Tailscale grants are
+   additive, so a new narrow rule cannot negate a previous allow-all rule.
+   Keep this role minimal; do not permit ephemeral runner access to other
+   tailnet services.
 2. Under Settings → Keys, choose **Generate auth key**. Select **Reusable**,
    **Ephemeral**, and `tag:temptopc-accept`, then **Generate key**.
    If device approval is enabled, choose **Pre-approved**. Copy the

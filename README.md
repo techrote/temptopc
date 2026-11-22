@@ -13,7 +13,8 @@ The Windows component is a **reusable workflow invoked by the repository under t
 1. At https://github.com/techrote/temptopc choose **Code → Codespaces → Create codespace on main**. The container installs and starts the Linux GUI.
 2. In the Codespace **Ports** panel, open port **6080**, whose visibility must be **Private**. Navigate to **/vnc.html**.
 3. In a Codespace terminal, run **bash scripts/desktop-status.sh --show-password** and enter the one-time VNC password.
-4. To launch Windows for a project, install the small caller workflow in that project's repository, configure its Tailscale and RDP secrets, then dispatch through **scripts/windows.sh start OWNER/REPO 60**.
+4. Run **`bash scripts/test-windows-launcher.sh`** for a credential-free mocked launcher test, then **`bash scripts/windows.sh preflight techrote/temptopc`** to check the live GitHub workflow and secret-name readiness.
+5. For Windows acceptance, configure the project's tagged Tailscale auth key and GitHub RDP secret. The XFCE **Launch Windows Acceptance** icon asks for the repository, duration and explicit confirmation before sending one manual dispatch.
 
 See **[Full setup, security and operating guide](docs/SETUP.md)**.
 
