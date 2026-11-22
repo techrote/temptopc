@@ -102,10 +102,16 @@ GitHub Actions API. It does not wake an existing Windows VM by packet.
 
 The Codespace's automatic GITHUB_TOKEN may be scoped to TempToPC and
 unable to dispatch Actions in other repositories. If so, authenticate
-GitHub CLI as an account with access to the target repository's Actions,
-using the supported device login. Verify that a restrictive environment
-GITHUB_TOKEN is not overriding that identity. Do not paste tokens into
-terminal history, chat, scripts, URLs or pull-request comments.
+a personal GitHub CLI session in the Codespace using the GitHub device flow:
+
+    env -u GITHUB_TOKEN -u GH_TOKEN gh auth login -h github.com --web -s repo,workflow
+    env -u GITHUB_TOKEN -u GH_TOKEN bash scripts/windows.sh start techrote/PlasmaTerm 60
+
+This uses the manually authorized account instead of the automatically injected,
+possibly narrow Codespaces token. Do not paste tokens into terminal history,
+chat, scripts, URLs or pull-request comments. Store the resulting credentials
+only in a trusted Codespace you control; they can be read by processes running
+as your Codespace user.
 
 A direct TempToPC Windows dispatch
 (**bash scripts/windows.sh start techrote/temptopc 30**) is only for
