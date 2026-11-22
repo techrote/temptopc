@@ -1,5 +1,3 @@
-# temptopc
-
 Reusable remote graphical development and acceptance tooling.
 
 | Component | Purpose | Access |
