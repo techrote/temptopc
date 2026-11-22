@@ -107,6 +107,11 @@ a personal GitHub CLI session in the Codespace using the GitHub device flow:
     env -u GITHUB_TOKEN -u GH_TOKEN gh auth login -h github.com --web -s repo,workflow
     env -u GITHUB_TOKEN -u GH_TOKEN bash scripts/windows.sh start techrote/PlasmaTerm 60
 
+The graphical launcher and scripts/windows.sh automatically prefer that
+separately configured GitHub CLI identity when ~/.config/gh/hosts.yml exists;
+otherwise they use the Codespace-provided token. A failed dispatch is never
+silently retried, to avoid accidentally spawning duplicate Windows jobs.
+
 This uses the manually authorized account instead of the automatically injected,
 possibly narrow Codespaces token. Do not paste tokens into terminal history,
 chat, scripts, URLs or pull-request comments. Store the resulting credentials
