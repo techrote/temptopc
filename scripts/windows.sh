@@ -26,6 +26,16 @@ if [[ $# -eq 0 ]]; then
   set -- start "$repository" "${duration:-60}"
 fi
 command -v gh >/dev/null || { echo 'GitHub CLI is missing' >&2; exit 2; }
+# A user-authorized gh login (when configured) takes precedence over the
+# injected Codespaces token, which may only access the TempToPC repository.
+# Never silently retry dispatch after a network error: it could duplicate jobs.
+gh_project() {
+  if [[ -s "$HOME/.config/gh/hosts.yml" ]]; then
+    env -u GITHUB_TOKEN -u GH_TOKEN gh "$@"
+  else
+    gh "$@"
+  fi
+}
 action="$1"
 shift
 repo="${1:-techrote/temptopc}"
@@ -40,7 +50,7 @@ case "$action" in
   start)
     duration="${1:-60}"
     case "$duration" in 30|60|120|240|300) ;; *) echo 'Duration must be 30,60,120,240,300' >&2; exit 2;; esac
-    if ! gh workflow run "$workflow" --repo "$repo" -f "minutes=$duration"; then
+    if ! gh_project workflow run "$workflow" --repo "$repo" -f "minutes=$duration"; then
       echo "Dispatch failed. Check that $repo has the workflow on its default branch and that gh has Actions write permission." >&2
       echo 'If using the limited Codespaces GITHUB_TOKEN, authenticate a separate personal gh session with workflow access.' >&2
       echo 'Do not paste an access token into a chat, URL, script or log.' >&2
@@ -50,12 +60,12 @@ case "$action" in
     echo "Check: https://github.com/$repo/actions/workflows/$workflow"
     ;;
   list)
-    gh run list --repo "$repo" --workflow "$workflow" --limit 10
+    gh_project run list --repo "$repo" --workflow "$workflow" --limit 10
     ;;
   view)
     run_id="${1:-}"
     [[ "$run_id" =~ ^[1-9][0-9]*$ ]] || { echo 'Provide numeric Actions run ID' >&2; exit 2; }
-    gh run view "$run_id" --repo "$repo" --web
+    gh_project run view "$run_id" --repo "$repo" --web
     ;;
   cancel)
     run_id="${1:-}"
@@ -63,7 +73,7 @@ case "$action" in
     printf 'Cancel Actions run %s in %s? Type CANCEL: ' "$run_id" "$repo"
     read -r response
     [[ "$response" == 'CANCEL' ]] || { echo 'Not cancelled'; exit 1; }
-    gh run cancel "$run_id" --repo "$repo"
+    gh_project run cancel "$run_id" --repo "$repo"
     ;;
   -h|--help|help) usage ;;
   *) usage >&2; exit 2 ;;
