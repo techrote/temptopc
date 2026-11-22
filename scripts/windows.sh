@@ -40,7 +40,7 @@ case "$action" in
   start)
     duration="${1:-60}"
     case "$duration" in 30|60|120|240|300) ;; *) echo 'Duration must be 30,60,120,240,300' >&2; exit 2;; esac
-    if ! gh workflow run "$workflow" --repo "$repo" --ref main -f "minutes=$duration"; then
+    if ! gh workflow run "$workflow" --repo "$repo" -f "minutes=$duration"; then
       echo "Dispatch failed. Check that $repo has the workflow on its default branch and that gh has Actions write permission." >&2
       echo 'If using the limited Codespaces GITHUB_TOKEN, authenticate a separate personal gh session with workflow access.' >&2
       echo 'Do not paste an access token into a chat, URL, script or log.' >&2
