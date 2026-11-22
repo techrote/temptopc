@@ -22,6 +22,9 @@ class TempToPCSourceContract(unittest.TestCase):
         self.assertEqual(config["remoteUser"], "vscode")
         self.assertEqual(config["forwardPorts"], [6080])
         self.assertEqual(config["portsAttributes"]["6080"]["visibility"], "private")
+        for raw_vnc_port in ("5900", "5901"):
+            self.assertEqual(config["portsAttributes"][raw_vnc_port]["onAutoForward"], "ignore")
+            self.assertEqual(config["portsAttributes"][raw_vnc_port]["visibility"], "private")
         self.assertIn("scripts/start-desktop.sh", config["postStartCommand"])
         self.assertNotIn("privileged", str(config).lower())
 
