@@ -91,10 +91,10 @@ bash "$root/scripts/launch-windows-gui.sh" >/dev/null
 assert_dispatch 'windows-desktop-selftest.yml --repo techrote/temptopc -f minutes=30'
 
 reset_log
-bash "$root/scripts/windows.sh" start techrote/PlasmaTerm 60 1234 release.zip 0123456789012345678901234567890123456789abcdef > /dev/null
+bash "$root/scripts/windows.sh" start techrote/PlasmaTerm 60 1234 release.zip 0123456789abcdef0123456789abcdef01234567 > /dev/null
 assert_dispatch 'temptopc-acceptance.yml --repo techrote/PlasmaTerm -f minutes=60 -f candidate_run_id=1234'
 grep -Fq 'candidate_artifact=release.zip' "$TEST_LOG" || fail 'Missing candidate artifact'
-grep -Fq 'candidate_sha=0123456789012345678901234567890123456789abcdef' "$TEST_LOG" || fail 'Missing source SHA'
+grep -Fq 'candidate_sha=0123456789abcdef0123456789abcdef01234567' "$TEST_LOG" || fail 'Missing source SHA'
 
 reset_log
 bash "$root/scripts/windows.sh" start techrote/PlasmaTerm 30 1234 release.zip > /dev/null 2>&1 && fail 'Incomplete identity accepted'
