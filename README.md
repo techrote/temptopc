@@ -1,4 +1,4 @@
-# TempToPC
+# temptopc
 
 Reusable remote graphical development and acceptance tooling.
 
