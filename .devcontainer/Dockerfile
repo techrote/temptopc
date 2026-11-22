@@ -6,7 +6,7 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       dbus-x11 xfce4 xfce4-terminal x11vnc xvfb x11-utils xauth \
       novnc websockify tigervnc-tools fonts-dejavu-core falkon \
-      gh git git-lfs jq openssl curl ca-certificates python3 \
+      zenity gh git git-lfs jq openssl curl ca-certificates python3 \
       openssh-server \
     && install -d -m 0755 /etc/ssh/sshd_config.d \
     && printf '%s\n' \

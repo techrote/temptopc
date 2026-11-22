@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-for exe in Xvfb xdpyinfo x11vnc websockify xfce4-session xfce4-terminal gh git python3 openssl sudo; do
+for exe in Xvfb xdpyinfo x11vnc websockify xfce4-session xfce4-terminal zenity gh git python3 openssl sudo; do
   command -v "$exe" >/dev/null || { echo "Missing command: $exe" >&2; exit 1; }
 done
 command -v tigervncpasswd >/dev/null || command -v vncpasswd >/dev/null || {

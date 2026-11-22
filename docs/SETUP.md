@@ -88,7 +88,7 @@ IPv4 address connections plus the required tailnet ACL policy.
 
 ## Spawn Windows from the Linux desktop
 
-The GUI shortcut opens a terminal dispatcher. The same commands work in
+The GUI shortcut opens repository/duration dialogs and then displays the authenticated dispatcher result in a terminal. The same commands work in
 any authenticated shell on the Linux Codespace:
 
     bash scripts/windows.sh start techrote/PlasmaTerm 60

@@ -9,7 +9,7 @@ Type=Application
 Version=1.0
 Name=Launch Windows Acceptance
 Comment=Dispatch a manual Windows acceptance workflow in the selected project
-Exec=xfce4-terminal --hold --command=$root/scripts/windows.sh
+Exec=$root/scripts/launch-windows-gui.sh
 Terminal=false
 Icon=utilities-terminal
 Categories=Development;

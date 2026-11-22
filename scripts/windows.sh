@@ -29,7 +29,7 @@ command -v gh >/dev/null || { echo 'GitHub CLI is missing' >&2; exit 2; }
 action="$1"
 shift
 repo="${1:-techrote/temptopc}"
-if [[ ! "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+if [[ ! "$repo" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
   echo "Invalid owner/repository: $repo" >&2
   exit 2
 fi
