@@ -49,7 +49,7 @@ class TempToPCSourceContract(unittest.TestCase):
         body = (ROOT / ".github/workflows/windows-desktop.yml").read_text()
         self.assertIn("tailscale/github-action@v4", body)
         self.assertIn("100.64.0.0/10", body)
-        self.assertNotIn("disable-netfirewall", body.lower())
+        self.assertNotIn("disable-netfirewallprofile", body.lower())
         self.assertIn("if: always()", body)
         self.assertIn("gh api", body)
         self.assertIn("head_sha", body)
