@@ -1,0 +1,26 @@
+name: TempToPC source contracts (no desktops)
+on:
+  push:
+    paths:
+      - '.devcontainer/**'
+      - 'scripts/**'
+      - 'templates/**'
+      - '.github/workflows/**'
+      - 'tests/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install YAML parser for offline source checks
+        run: python3 -m pip install --disable-pip-version-check --user 'PyYAML==6.0.3'
+      - name: Validate shell syntax, YAML and access rules
+        run: python3 -m unittest discover -s tests -v
