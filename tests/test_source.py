@@ -55,7 +55,7 @@ class TempToPCSourceContract(unittest.TestCase):
     def test_reusable_manual_windows(self):
         file = workflow(".github/workflows/windows-desktop.yml")
         self.assertEqual(set(file["on"]), {"workflow_call"})
-        self.assertEqual(file["permissions"], {"contents": "read", "actions": "read"})
+        self.assertEqual(file["permissions"], {"contents": "read", "actions": "read", "pull-requests": "read"})
         job = file["jobs"]["windows-acceptance"]
         self.assertEqual(job["runs-on"], "windows-2022")
         self.assertIn("workflow_dispatch", job["if"])
@@ -66,6 +66,10 @@ class TempToPCSourceContract(unittest.TestCase):
         self.assertIn("if: always()", body)
         self.assertIn("gh api", body)
         self.assertIn("head_sha", body)
+        self.assertIn("candidate_prs", body)
+        self.assertIn("PR source specification", body)
+        self.assertIn("same-project PR", body)
+        self.assertIn("GIT_LFS_SKIP_SMUDGE", body)
         self.assertNotIn("0.0.0.0:3389", body)
         self.assertFalse(re.search(r"\[\[\s*(?:github|inputs|secrets)\.", body))
 
@@ -77,6 +81,8 @@ class TempToPCSourceContract(unittest.TestCase):
         self.assertIn("@%TEMPTOPC_COMMIT%", template)
         self.assertIn("workflow_dispatch", template)
         self.assertIn("candidate_artifact:", template)
+        self.assertIn("candidate_prs:", template)
+        self.assertIn("candidate_prs: ${{ inputs.candidate_prs }}", template)
         self.assertIn("secrets.TEMPTOPC_RDP_PASSWORD", template)
 
     def test_dispatch_is_manually_gated(self):

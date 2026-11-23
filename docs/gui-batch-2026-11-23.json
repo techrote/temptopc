@@ -1,0 +1,208 @@
+{
+  "schema": "temptopc-acceptance-batch-v1",
+  "snapshot": "2026-11-23",
+  "manual_only": true,
+  "merge_authority": false,
+  "groups": [
+    {
+      "repo": "techrote/chromofoxEXT",
+      "minutes": 120,
+      "prs": [
+        {
+          "number": 1,
+          "sha": "f8c6b3584e638c0653d4f6ac234de1d6f9fb631f"
+        },
+        {
+          "number": 2,
+          "sha": "6f50b409c7ebab05931ae37d16c77f750eb5d3c1"
+        },
+        {
+          "number": 3,
+          "sha": "fa6653df93c1a55995e8b3148f6925f8f6d7297e"
+        },
+        {
+          "number": 5,
+          "sha": "27a40cd454a29ba7d85271e01952611f8463672a"
+        },
+        {
+          "number": 6,
+          "sha": "a20c8b14250eb384cf02ed6bc1c32fd488ae135c"
+        },
+        {
+          "number": 8,
+          "sha": "9d6345bcf20ba3b75649036ff8755ae0f639a2a6"
+        },
+        {
+          "number": 10,
+          "sha": "ddd95b356ae972191025ad771793c551165e5683"
+        },
+        {
+          "number": 12,
+          "sha": "532b05a5758bed4466f82a3c227fcc5b36db22bd"
+        }
+      ],
+      "candidate_prs": "1@f8c6b3584e638c0653d4f6ac234de1d6f9fb631f,2@6f50b409c7ebab05931ae37d16c77f750eb5d3c1,3@fa6653df93c1a55995e8b3148f6925f8f6d7297e,5@27a40cd454a29ba7d85271e01952611f8463672a,6@a20c8b14250eb384cf02ed6bc1c32fd488ae135c,8@9d6345bcf20ba3b75649036ff8755ae0f639a2a6,10@ddd95b356ae972191025ad771793c551165e5683,12@532b05a5758bed4466f82a3c227fcc5b36db22bd",
+      "artifact": {
+        "run_id": "44948446018",
+        "name": "tabgroup-ux-phase-a-firefox",
+        "sha": "532b05a5758bed4466f82a3c227fcc5b36db22bd"
+      },
+      "limitations": "#6 genuine stalled ChatGPT needed; #8 native ConPTY separate; #10 controlled Pro send; #5 reversible userChrome CSS; #2 real phone scan"
+    },
+    {
+      "repo": "techrote/CISmonWEB",
+      "minutes": 60,
+      "prs": [
+        {
+          "number": 23,
+          "sha": "67f764a74c393af8c729a115e2085abc5bc3a490"
+        },
+        {
+          "number": 25,
+          "sha": "4baa6f8a737d300ade3dc4e831c99f2809e7b92b"
+        },
+        {
+          "number": 26,
+          "sha": "a22b733841940b0abcbe095a1c89d08273dccbd7"
+        }
+      ],
+      "candidate_prs": "23@67f764a74c393af8c729a115e2085abc5bc3a490,25@4baa6f8a737d300ade3dc4e831c99f2809e7b92b,26@a22b733841940b0abcbe095a1c89d08273dccbd7",
+      "artifact": null,
+      "limitations": "Firefox browser; authenticated live GitHub provider, alerts and real audio conditional"
+    },
+    {
+      "repo": "techrote/mdbm",
+      "minutes": 60,
+      "prs": [
+        {
+          "number": 8,
+          "sha": "8aae637874b810b97ccdeefd1db6c28a9a08576d"
+        },
+        {
+          "number": 9,
+          "sha": "6a9c258fc0803c078f0f15e2b9845b49011780cb"
+        },
+        {
+          "number": 10,
+          "sha": "2719e9d24983d1c0de3fe8a7bdb7c69157f60da9"
+        },
+        {
+          "number": 12,
+          "sha": "eaeb9ab3c8b712ecd97d12b09c2d427c0212fa02"
+        }
+      ],
+      "candidate_prs": "8@8aae637874b810b97ccdeefd1db6c28a9a08576d,9@6a9c258fc0803c078f0f15e2b9845b49011780cb,10@2719e9d24983d1c0de3fe8a7bdb7c69157f60da9,12@eaeb9ab3c8b712ecd97d12b09c2d427c0212fa02",
+      "artifact": null,
+      "limitations": "#8 and #12 separate GUI candidates; #9/#10 older-base stacked PRs need reconciliation before combined acceptance"
+    },
+    {
+      "repo": "techrote/npppplugins",
+      "minutes": 30,
+      "prs": [
+        {
+          "number": 1,
+          "sha": "9df5ddbdd5b85a3465e8dc06dbbc3bb816944f03"
+        }
+      ],
+      "candidate_prs": "1@9df5ddbdd5b85a3465e8dc06dbbc3bb816944f03",
+      "artifact": {
+        "run_id": "44964884618",
+        "name": "TokenStatus-windows-x64",
+        "sha": "9df5ddbdd5b85a3465e8dc06dbbc3bb816944f03"
+      },
+      "limitations": "Requires native Notepad++ x64 host; test text/splits/toggle/unload"
+    },
+    {
+      "repo": "techrote/RetroBar-Extreme",
+      "minutes": 120,
+      "prs": [
+        {
+          "number": 38,
+          "sha": "655b30e55f8e2745111b976f2af650c84fe46929"
+        },
+        {
+          "number": 39,
+          "sha": "aba2cb505dd3495282bd2d715fe519da080843b7"
+        },
+        {
+          "number": 41,
+          "sha": "58a58085d5d65012bb8682aaf27a97298cc88a7c"
+        },
+        {
+          "number": 42,
+          "sha": "08c1337849bdb7069435c34cbb27e0b346e05cfe"
+        },
+        {
+          "number": 43,
+          "sha": "9b7d7a5ceab5fa86d524137853bedf6d40f8a3ee"
+        },
+        {
+          "number": 44,
+          "sha": "9b7d7a5ceab5fa86d524137853bedf6d40f8a3ee"
+        },
+        {
+          "number": 46,
+          "sha": "377610e0b1a8fbbf6d39b5f967a3f2224a520039"
+        },
+        {
+          "number": 47,
+          "sha": "23b70c46499059d4fe9e0fc639e341703ffd822a"
+        }
+      ],
+      "candidate_prs": "38@655b30e55f8e2745111b976f2af650c84fe46929,39@aba2cb505dd3495282bd2d715fe519da080843b7,41@58a58085d5d65012bb8682aaf27a97298cc88a7c,42@08c1337849bdb7069435c34cbb27e0b346e05cfe,43@9b7d7a5ceab5fa86d524137853bedf6d40f8a3ee,44@9b7d7a5ceab5fa86d524137853bedf6d40f8a3ee,46@377610e0b1a8fbbf6d39b5f967a3f2224a520039,47@23b70c46499059d4fe9e0fc639e341703ffd822a",
+      "artifact": {
+        "run_id": "44931387490",
+        "name": "RetroBar Isolated Evaluation 64-bit",
+        "sha": "377610e0b1a8fbbf6d39b5f967a3f2224a520039"
+      },
+      "limitations": "Use #46 isolated evaluator only; never set as Windows shell. #47 independent; Server RDP not equivalent to physical multi-monitor taskbar"
+    },
+    {
+      "repo": "techrote/ASCIIcodimium",
+      "minutes": 120,
+      "prs": [
+        {
+          "number": 2,
+          "sha": "e24339beefbf4c53009ba78a7f280f4d9e144e18"
+        }
+      ],
+      "candidate_prs": "2@e24339beefbf4c53009ba78a7f280f4d9e144e18",
+      "artifact": null,
+      "limitations": "No prebuilt artifact/CI; needs Node 22, OpenCode 2 and local workspace; source-only trial"
+    }
+  ],
+  "deferred": [
+    {
+      "repo": "techrote/greenshot-multibinds",
+      "prs": [
+        1
+      ],
+      "reason": "Exact-head Windows checks failed"
+    },
+    {
+      "repo": "techrote/flexdiffusion",
+      "reason": "GPU/VRAM functionality"
+    },
+    {
+      "repo": "techrote/ezDarkFactory",
+      "prs": [
+        28
+      ],
+      "reason": "Physical Windows Terminal and child-process gate"
+    },
+    {
+      "repo": "techrote/HWiNFOterm",
+      "prs": [
+        1
+      ],
+      "reason": "Real HWiNFO host/hardware"
+    },
+    {
+      "repo": "techrote/PocketPlasma",
+      "prs": [
+        5
+      ],
+      "reason": "Physical ESP32/WebSerial"
+    }
+  ]
+}

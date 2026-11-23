@@ -25,10 +25,16 @@ on:
         type: string
         required: false
         default: ""
+      candidate_prs:
+        description: "Comma-separated PR-number@head-SHA source snapshots (max 16; never executed)"
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
   actions: read
+  pull-requests: read
 
 jobs:
   interactive-acceptance:
@@ -38,6 +44,7 @@ jobs:
       candidate_run_id: ${{ inputs.candidate_run_id }}
       candidate_artifact: ${{ inputs.candidate_artifact }}
       candidate_sha: ${{ inputs.candidate_sha }}
+      candidate_prs: ${{ inputs.candidate_prs }}
     secrets:
       TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
       TEMPTOPC_RDP_PASSWORD: ${{ secrets.TEMPTOPC_RDP_PASSWORD }}
